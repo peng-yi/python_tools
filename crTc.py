@@ -35,10 +35,10 @@ last  = int(float(argv[2]))
 time = []
 compos = []
 timestep = 4e-6   	# ns
-nmax = 20
-t0 = 300     		# K
+nmax = 100
+t0 = 400     		# K
 #rate = 50           	# K/ns, + for heating, - for cooling
-rate = 50           	# K/ns, + for heating, - for cooling
+rate = 50          	# K/ns, + for heating, - for cooling
 
 for i in range(first, last+1):
     name = "run"+str(i)+"/mfpt"

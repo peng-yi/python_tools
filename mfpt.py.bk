@@ -5,7 +5,7 @@
 # update: 7/3/2016
 #
 
-import matplotlib.pyplot as plt
+import pylab
 import math
 import os
 import sys
@@ -71,12 +71,12 @@ for i in xrange(len(rawdata)):
 out.close()    
 
 # make plot
-#plt.errorbar(rawdata.keys(), Mean, yerr=Std)
-plt.plot(rawdata.keys(), Mean, 'bo')
-plt.xlim([0, 100])
-plt.xlabel("n_max")
-plt.ylabel("Time (ns)")
-plt.title("Mean First Passage Time")
-plt.legend(("legend",))
-plt.show()
+#pylab.errorbar(rawdata.keys(), Mean, yerr=Std)
+pylab.plot(rawdata.keys(), Mean, 'bo')
+pylab.xlim([0, 100])
+pylab.xlabel("n_max")
+pylab.ylabel("Time (ns)")
+pylab.title("Mean First Passage Time")
+pylab.legend(("legend",))
+pylab.show()
 
