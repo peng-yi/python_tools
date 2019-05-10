@@ -1,0 +1,11 @@
+ave.py:
+	calculate mean and std on multiple columns in given file
+
+plot_files.py: 
+	plot single or multiple files
+
+plot_folders.py:
+	plot same file in multiple folders, folders names have common string
+
+extractThermo.py:
+	extract thermodynamic data from LAMMPS log file

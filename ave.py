@@ -1,16 +1,21 @@
-#!/cm/shared/apps/Intel/python/2.7.10/bin/python
-# program: ave.py
+#!/software/apps/anaconda/5.2/python/2.7/bin/python
+# Program: ave.py
 #
-# purpose:
+# Calculate the mean and standard deviation of columns of data
 #
-# update: 7/3/2016
+# Syntax: python ave.py filename col#1 col#2 ...
+#
+# output: file "results"
+#
+# Author: Peng Yi @ JHU
+#
+# update: 7/3/2016, 7/19/2018, 11/17/2018
 #
 
 import matplotlib.pyplot as plt
 import math
 import os
 import sys
-
 
 # --------------------------------------
 # Helper code
@@ -27,7 +32,7 @@ def getMeanAndStd(X):
 # --------------------------------------
 
 if len(sys.argv) < 2:
-    print "Usage: python ave.py filename"
+    print "Usage: python ave.py filename col1 col2 col3 ..."
     sys.exit(1)
 argv = sys.argv
 
@@ -58,10 +63,12 @@ for i in range(len(rawdata)):
     #Mean.append(str(round(mean,4)))
     #Std.append(str(round(std,4)))
 
-#print "Mean = ", Mean
-#print "Std = ", Std
-
 # output
-out = open("stat", "a")
-out.write("%.4f %.4f %.4f %.4f %.4f %.4f\n" %(Mean[8], Std[8], Mean[9], Std[9], Mean[10], Std[10])) 
+out = open("results", "a")
+out.write("Averaging cols of file \"" + filename + "\"\n")
+
+for i in range(2,len(argv)):
+   col = int(argv[i])-1
+   out.write("Col#%d: %8.4f +- %3.4f\n" %(col+1, Mean[col], Std[col]))
+
 out.close()    

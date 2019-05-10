@@ -1,0 +1,214 @@
+#!/software/apps/anaconda/5.2/python/2.7/bin/python
+# program: plot_folders.py
+#
+# purpose:
+#
+# update: 12/20/2017, 12/1/2018
+#
+# note: maybe useful, linecycler and markercycler
+#
+
+import matplotlib.pyplot as mp
+import matplotlib.ticker as ticker
+import math
+import os
+import sys
+import numpy as np
+import itertools
+
+# --------------------------------------
+# Helper code
+
+def getMeanAndStd(X):
+    mean = sum(X)/float(len(X))
+    tot = 0.0
+    for x in X:
+       tot += (x-mean)**2
+    std = (tot/len(X))**0.5
+    return mean, std
+
+# end of helper code
+# --------------------------------------
+
+if len(sys.argv) < 5:
+    print "Usage: python plot_folders.py string filename colx coly"
+    sys.exit(1)
+
+argv = sys.argv
+string = argv[1]
+name = argv[2]
+colx = int(float(argv[3]))
+coly = int(float(argv[4]))
+
+# get current working directory
+cwd = os.getcwd()   	
+
+# get subfolder names
+subfolders = [ i for i in os.listdir(cwd) if os.path.isdir(i) and string in i]
+
+subfolders = [filter(str.isdigit, i) for i in subfolders]
+
+tmp = [int(float(i)) for i in subfolders]
+tmp = sorted(tmp, reverse=False)
+
+subfolders = ['run' + str(i) for i in tmp]
+
+
+# Set up plot
+fig = mp.figure()
+ax = fig.add_subplot(111)
+ax.set(title='', xlabel=r'Time (ns)', ylabel=r'Largest nucleus size (atom)')
+#lines= ["-","--","-.",":"]
+lines= ['-']
+linecycler = itertools.cycle(lines)
+markers = ['s','o','^']
+markercycler = itertools.cycle(markers)
+
+#ax.set(title='spherical nucleus, no gradient', xlabel='Time (ns)', ylabel=r'$\frac{\mathrm{Nucleus\ size}}{\mathrm{Nucleus\ size @ t=0}}$')
+#label = [r'r=5$\math{\AA}$',r'r=10$\mathrm{\AA}$',r'r=15$\mathrm{\AA}$',r'r=20$\mathrm{\AA}$',r'r=25$\mathrm{\AA}$',r'r=30$\mathrm{\AA}$']
+#clr = ['k', 'r', 'b' ]
+
+for folder in subfolders:
+   filename = folder + '/' + name
+
+   print filename
+
+   if not os.path.isfile(filename):
+      os.chdir(cwd)
+      continue
+
+   fin = open(filename, 'r')
+
+   X = []
+   Y = []
+   for line in fin.readlines():
+      data = line.split()
+
+      if data[1].isdigit():
+	 x = float(data[colx-1])
+	 y = float(data[coly-1])
+	 X.append(x)
+	 Y.append(y)
+
+   X=np.asarray(X)
+   #X-=210000
+   X/=250000
+   Y=np.asarray(Y)
+   ax.plot(X, Y, next(linecycler), marker=next(markercycler), markersize=8, label=folder, linewidth=1.2)
+   #ax.scatter(X, Y, marker=next(markercycler),markersize=4)
+
+ax.set(xlim=[0.0, 20])
+ax.set(ylim=[0, None])
+#ax.set(ylim=[-121000, -116000])
+#ax.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+#ax.yaxis.set_minor_locator(ticker.MultipleLocator(0.1))
+ax.yaxis.set_ticks_position('both')
+ax.tick_params(which='major',length=6,labelsize=14)
+ax.tick_params(which='minor',length=3)
+ax.tick_params(direction='in',which='both',labelright='on')
+
+ax.xaxis.label.set_size(24)
+ax.yaxis.label.set_size(24)
+ax.title.set_size(24)
+
+ax.text(0.05,0.85, 'T=900K\n'+r'd=12$\AA$', horizontalalignment='left',bbox=dict(boxstyle='round',fc='w',alpha=0.5,pad=0.5),transform=ax.transAxes,size=18)
+
+textx=10
+texty=6000
+ax.annotate("", xy=(8.8,6700), xytext=(textx,texty),arrowprops=dict(fc='r',shrink=0.1))
+ax.text(textx,texty,'martensitic transformation',color='r',size=16)
+
+legend = ax.legend(loc='best',shadow=False)
+frame = legend.get_frame()
+frame.set_facecolor('0.95')
+
+mp.tight_layout()
+mp.savefig('output.png',dpi=300)
+mp.show()
+exit(0)
+
+
+# legendary version below
+
+for i in range(len(folders)):
+   folder = folders[i]
+
+   if os.path.isdir(folder):   		# if folder exists
+
+      os.chdir('./'+folder)       	# change the current working directory
+
+      if not os.path.isdir("file_restart"):
+	 os.system("mkdir file_restart/")
+
+      os.system("mv restart.* file_restart/ 2>/dev/null")
+
+      if not os.path.isfile("output.0"):
+	 os.chdir(cwd)
+	 continue
+
+      os.system("grep nuclei output.0 > nuclei0")
+      os.system("sort -n -u -k2 nuclei0 >nuclei")
+      os.system("rm nuclei0")
+
+      os.chdir(cwd)              	# change working directory
+    
+      file = open(folder+'nuclei',"r")
+      X= []
+      Y= []
+      Z= []
+
+      for line in file.readlines():
+	 list = line.split()
+	 x = (float(list[1]))
+	 y = float(list[4])
+	 z = float(list[5])
+	 X.append(x)
+	 Y.append(y)
+	 Z.append(z)
+
+      X=np.asarray(X)
+      Y=np.asarray(Y)
+      Z=np.asarray(Z)
+
+      X /= 250000   			# conver to ns
+      #Y= Y+Z
+      #Y = Y / Y[1]
+      #Z = Z / Z[0]
+
+      #ax = fig.add_subplot(711+i)
+      ax.plot(X,Y,'-',label=label[i],color=clr[i],linewidth=1.2)
+      #ax.plot(X,Z,label=label[i-first],linewidth=1.2)
+      #ax.set(ylim=[0.0, 2.0])
+
+ax.set(xlim=[0.0, None])
+#ax.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+#ax.yaxis.set_minor_locator(ticker.MultipleLocator(0.1))
+ax.yaxis.set_ticks_position('both')
+ax.tick_params(which='major',length=6,labelsize=10)
+ax.tick_params(which='minor',length=3)
+ax.tick_params(direction='in',which='both',labelright='on')
+
+ax.xaxis.label.set_size(20)
+ax.yaxis.label.set_size(20)
+ax.title.set_size(20)
+
+
+legend = ax.legend(loc='best',shadow=False,prop={'size':10})
+frame = legend.get_frame()
+frame.set_facecolor('0.95')
+
+for label in legend.get_texts():
+   label.set_fontsize('large')
+
+for label in legend.get_lines():
+   label.set_linewidth(1.5)
+
+# output statistics
+#out = open("mfpt", "w")
+#for i in xrange(len(rawdata)):
+#    out.write("%d %f %f %f\n" %(rawdata.keys()[i], Mean[i], Std[i], Sterr[i])) 
+#out.close()    
+
+# make plot
+# mp.savefig('nogradient700K.png')
+mp.show()

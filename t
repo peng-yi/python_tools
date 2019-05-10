@@ -1,0 +1,19 @@
+sample 0
+sample 0
+sample 0
+sample 1
+sample 1
+sample 1
+sample 2
+sample 2
+sample 2
+ 
+sample 0
+sample 0
+sample 0
+sample 1
+sample 1
+sample 1
+sample 2
+sample 2
+sample 2
